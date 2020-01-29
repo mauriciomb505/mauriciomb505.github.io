@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css?family=Alegreya+Sans:100|Wire+One&display=swap" rel="stylesheet"> 
+    <script defer src="main.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>    
+    <title>Note Taker</title>
+</head>
+<body>
+    <div id="background"></div>
+    <main class="page-container">
+
+        <div class="create-note-modal">
+            <input id="note-name-input" type="text" placeholder="Enter Note Name">
+            <button id="create-note-btn">Create Note</button>
+            <div id="modal-background"></div>
+            <i id="close-modal">&times;</i>
+        </div>
+
+        <section class="header">
+            <h1>Note Taker</h1>
+            <input id="search-input" type="text" placeholder="Search...">
+        </section>
+        <section class="bottom">
+            <button id="new-note-btn">New Note</button>
+            <div class="note-list">
+                <div class="note">
+                    <section class="note-info">
+                        <h2 class="note-name">Note 1</h2>
+                        <h3 class="note-date">December 22, 2019</h3>
+                    </section>
+                    <section class="note-edit">
+                        <button class="note-rename-btn">Rename</button>
+                        <button class="note-delete-btn">Delete</button>
+                    </section>
+                </div>
+            </div>
+            <div class="input-container">
+                <button id="save-note-btn">Save Note</button>
+                <textarea class="note-input" placeholder="Enter Note" cols="30" rows="5"></textarea>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
