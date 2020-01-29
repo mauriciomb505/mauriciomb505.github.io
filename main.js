@@ -15,6 +15,8 @@ let searchInput
 
 console.log(noteStorage != null)
 
+if(noteStorage.length){console.log("test")}
+
 function loadNotes(){
     noteStorage = JSON.parse(localStorage.getItem("notes"))
     console.log(noteStorage)
@@ -39,7 +41,7 @@ function noteSelectedHandler(noteSelected){
 
 $(document).ready(function() {
     
-    if(noteStorage != null){ loadNotes() }
+    if(noteStorage && noteStorage.length){ loadNotes() }
 
     $("#new-note-btn").click(function(){
         $(".create-note-modal").fadeIn()
