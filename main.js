@@ -14,8 +14,6 @@ let noteStorage = JSON.parse(localStorage.getItem("notes")) || []
 let searchInput
 let noteClone
 
-console.log(noteStorage)
-
 function loadNotes(){
 
     if(noteStorage && noteStorage.length !== 0){
@@ -27,7 +25,6 @@ function loadNotes(){
             noteCopy.children(".note-info").children(".note-date").text(noteStorage[i].Date)
             noteCopy.appendTo(".note-list")
         }
-       // $(".note").first().remove()
     }
 }
 
@@ -42,10 +39,7 @@ $(document).ready(function() {
     noteClone = $(".note").clone(true).first() //cloning HTML element template of note
     $(".note").first().remove() //removing template
 
-    console.log(noteClone)
     loadNotes()
-    console.log(noteStorage)
-
 
     $("#new-note-btn").click(function(){
         $(".create-note-modal").fadeIn()
@@ -86,7 +80,6 @@ $(document).ready(function() {
             noteStorage[noteIndex].Name = noteBeingRenamed.text()
             localStorage.setItem("notes", JSON.stringify(noteStorage))
         }
-
         $("#note-name-input").val("")
     })
 
@@ -100,7 +93,6 @@ $(document).ready(function() {
         noteSelectedHandler($(this))
 
         noteIndex = $(this).index()
-        console.log("note clicked index: " + noteIndex + " Content: " + noteStorage[noteIndex])
         $(".input-container").show()
         $(".note-input").val(noteStorage[noteIndex].Content)
     })
@@ -111,12 +103,10 @@ $(document).ready(function() {
         $(".create-note-modal").fadeIn()
         noteBeingRenamed = $(this).parent().siblings(".note-info").children(".note-name")
         noteIndex = $(".note").index($(this).parent().parent())
-        console.log(noteIndex)
     })
 
     $(".note-list").on("click", ".note .note-edit .note-delete-btn", function(e){ //delete button click
         noteIndex = $(".note").index($(this).parent().parent())
-        console.log(noteIndex)
         noteStorage.splice(noteIndex, 1)
         localStorage.setItem("notes", JSON.stringify(noteStorage))
         $(this).parent().parent().remove()
