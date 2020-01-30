@@ -3,29 +3,32 @@ $(".create-note-modal").hide()
 $(".input-container").hide()
 
 let renaming = false
-let elementBeingRenamed
-let elementIndex
+let noteBeingRenamed
+let noteIndex
 let noteObj = {
-    noteName : "",
-    noteDate : "",
-    noteContent : ""
+    Name : "",
+    Date : "",
+    Content : ""
     }
-let noteStorage = []
+let noteStorage = JSON.parse(localStorage.getItem("notes")) || []
 let searchInput
+let noteClone
+
+console.log(noteStorage)
 
 function loadNotes(){
-    noteStorage = JSON.parse(localStorage.getItem("notes"))
-    console.log(noteStorage)
 
-    for(let i = 0; i < noteStorage.length; i++){
-        let noteCopy = $(".note").clone(true).first()
-        noteCopy.css({"display" : "grid"})
-
-        noteCopy.children(".note-info").children(".note-name").text(noteStorage[i].noteName)
-        noteCopy.children(".note-info").children(".note-date").text(noteStorage[i].noteDate)
-        noteCopy.appendTo(".note-list")
+    if(noteStorage && noteStorage.length !== 0){
+        for(let i = 0; i < noteStorage.length; i++){
+            let noteCopy = noteClone.clone(true)
+            noteCopy.css({"display" : "grid"})
+    
+            noteCopy.children(".note-info").children(".note-name").text(noteStorage[i].Name)
+            noteCopy.children(".note-info").children(".note-date").text(noteStorage[i].Date)
+            noteCopy.appendTo(".note-list")
+        }
+       // $(".note").first().remove()
     }
-    $(".note").first().remove()
 }
 
 function noteSelectedHandler(noteSelected){
@@ -36,8 +39,13 @@ function noteSelectedHandler(noteSelected){
 }
 
 $(document).ready(function() {
-    
-    if(noteStorage && noteStorage.length === 0){ loadNotes() }
+    noteClone = $(".note").clone(true).first() //cloning HTML element template of note
+    $(".note").first().remove() //removing template
+
+    console.log(noteClone)
+    loadNotes()
+    console.log(noteStorage)
+
 
     $("#new-note-btn").click(function(){
         $(".create-note-modal").fadeIn()
@@ -54,61 +62,66 @@ $(document).ready(function() {
         
         if(!renaming){
             var today = new Date();
-            let noteCopy = $(".note").clone(true).first()
             
-            noteCopy.css({"display" : "grid"})
+            let newNote =  noteClone.clone(true)
+            newNote.css({"display" : "grid"})
 
-            noteCopy.children(".note-info").children(".note-name").text($("#note-name-input").val())
-            noteCopy.children(".note-info").children(".note-date").text(today.toDateString())
-            noteCopy.appendTo(".note-list")
+            newNote.children(".note-info").children(".note-name").text($("#note-name-input").val())
+            newNote.children(".note-info").children(".note-date").text(today.toDateString())
+            newNote.appendTo(".note-list")
             
             noteObj = {}
-            noteObj.noteName = noteCopy.children(".note-info").children(".note-name").text()
-            noteObj.noteDate = noteCopy.children(".note-info").children(".note-date").text()
+            noteObj.Name = newNote.children(".note-info").children(".note-name").text()
+            noteObj.Date = newNote.children(".note-info").children(".note-date").text()
+            noteObj.Content = ''
 
             noteStorage.push(noteObj)
             localStorage.setItem("notes", JSON.stringify(noteStorage))
+            $(".note-input").val(noteObj.Content)
             $(".input-container").show()
 
-            noteSelectedHandler(noteCopy)
+            noteSelectedHandler(newNote)
         }else{
-            elementBeingRenamed.text($("#note-name-input").val())
-            noteStorage[elementIndex].noteName = elementBeingRenamed.text()
+            noteBeingRenamed.text($("#note-name-input").val())
+            noteStorage[noteIndex].Name = noteBeingRenamed.text()
+            localStorage.setItem("notes", JSON.stringify(noteStorage))
         }
 
         $("#note-name-input").val("")
     })
 
     $("#save-note-btn").click(function(){
-        noteStorage[elementIndex].noteContent = $(".note-input").val()
+        noteStorage[noteIndex].Content = $(".note-input").val()
         localStorage.setItem("notes", JSON.stringify(noteStorage))
     })
 
-    $(".note").click(function(){
+    $(".note-list").on("click", ".note", function(){  //note click
 
         noteSelectedHandler($(this))
 
-        elementIndex = $(this).index() - 1
+        noteIndex = $(this).index()
+        console.log("note clicked index: " + noteIndex + " Content: " + noteStorage[noteIndex])
         $(".input-container").show()
-        $(".note-input").val(noteStorage[elementIndex].noteContent)
-        console.log(elementIndex)
+        $(".note-input").val(noteStorage[noteIndex].Content)
     })
 
-    $(".note-rename-btn").click(function(){
+    $(".note-list").on("click", ".note .note-edit .note-rename-btn", function(){ //rename button click
         renaming = true
         $("#create-note").text("Rename Note")
         $(".create-note-modal").fadeIn()
-        elementBeingRenamed = $(this).parent().siblings(".note-info").children(".note-name")
-        elementIndex = $(".note").index($(this).parent().parent())  //remove -1 when the first note (for cloning) is gone
-        console.log(elementIndex)
+        noteBeingRenamed = $(this).parent().siblings(".note-info").children(".note-name")
+        noteIndex = $(".note").index($(this).parent().parent())
+        console.log(noteIndex)
     })
 
-    $(".note-delete-btn").click(function(){
-        elementIndex = $(".note").index($(this).parent().parent()) //remove -1 when the first note (for cloning) is gone
-        $(this).parent().parent().remove()
-        console.log(elementIndex)
-        noteStorage.splice(elementIndex, 1)
+    $(".note-list").on("click", ".note .note-edit .note-delete-btn", function(e){ //delete button click
+        noteIndex = $(".note").index($(this).parent().parent())
+        console.log(noteIndex)
+        noteStorage.splice(noteIndex, 1)
         localStorage.setItem("notes", JSON.stringify(noteStorage))
+        $(this).parent().parent().remove()
+
+        e.stopPropagation(); //stops future events from firing (used for note clicked)
     })
 
     $("#search-input").on("keyup", function(){
@@ -116,12 +129,12 @@ $(document).ready(function() {
         let inputCharCheckLength = searchInput.length
 
         $(".note").each(function(){
-            let noteName = $(this).children(".note-info").children(".note-name").text()
+            let Name = $(this).children(".note-info").children(".note-name").text()
 
             if(searchInput.length < 1){ //if string is empty show all notes
                 $(this).show()
             }
-            else if(noteName.slice(0, inputCharCheckLength) != searchInput.slice(0, inputCharCheckLength)){ //if current characters in input do not equal note name, then hide note
+            else if(Name.slice(0, inputCharCheckLength) != searchInput.slice(0, inputCharCheckLength)){ //if current characters in input do not equal note name, then hide note
                 $(this).hide()
             }
             else{
